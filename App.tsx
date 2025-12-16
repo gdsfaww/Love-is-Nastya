@@ -113,7 +113,7 @@ const LoginScreen: React.FC<LoginProps> = ({ onLogin }) => {
     e.preventDefault();
     const cleanPass = password.trim().toLowerCase();
     // Updated password check
-    if (cleanPass === 'люблю') {
+    if (cleanPass === 'любовь') {
       onLogin();
     } else {
       setError(true);
@@ -147,7 +147,7 @@ const LoginScreen: React.FC<LoginProps> = ({ onLogin }) => {
           
           {error && (
             <p className="text-rose-400 text-xs md:text-sm font-serif italic animate-bounce">
-              Это главное слово в нашей истории...
+              Это главное чувство в нашей жизни...
             </p>
           )}
 
@@ -206,7 +206,9 @@ const QuestModal: React.FC<{ day: DayConfig; isOpen: boolean; onClose: () => voi
     }
   };
 
-  const handleRewardClaimed = () => {
+  const handleRewardClaimed = (e: React.MouseEvent) => {
+    // Prevent any bubbling issues and ensure action
+    e.stopPropagation();
     onComplete();
     onClose();
   };
@@ -241,36 +243,37 @@ const QuestModal: React.FC<{ day: DayConfig; isOpen: boolean; onClose: () => voi
         
         {/* Success / Reward Overlay */}
         {(viewState === 'success' || viewState === 'reward') && (
-          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-velvet-dark text-rose-100 transition-all duration-700 animate-in fade-in p-6">
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-velvet-dark text-rose-100 transition-all duration-700 animate-in fade-in p-6 overflow-y-auto">
              {/* Decorative background elements */}
-             <div className="absolute inset-0 overflow-hidden">
+             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle,rgba(251,113,133,0.1)_0%,rgba(0,0,0,0)_70%)] animate-pulse-soft" />
              </div>
              
              {viewState === 'success' ? (
-               <>
+               <div className="flex flex-col items-center text-center my-auto">
                  <Heart className="w-24 h-24 text-rose-500 fill-rose-500 animate-heartbeat mb-6 relative z-10 drop-shadow-[0_0_30px_rgba(244,63,94,0.6)]" />
                  <h3 className="font-serif text-5xl md:text-6xl text-rose-100 italic text-center relative z-10 text-glow leading-none mb-2">Принято</h3>
                  <div className="w-16 h-px bg-rose-500/50 my-6 relative z-10" />
-               </>
+               </div>
              ) : (
-               <>
-                 <Gift className="w-20 h-20 text-gold-warm animate-bounce mb-6 relative z-10 drop-shadow-[0_0_30px_rgba(222,184,135,0.4)]" />
-                 <h3 className="font-serif text-3xl md:text-4xl text-rose-100 italic text-center relative z-10 text-glow leading-tight mb-6">Сюрприз!</h3>
+               <div className="flex flex-col items-center text-center w-full max-w-sm my-auto relative z-10">
+                 <Gift className="w-20 h-20 text-gold-warm animate-bounce mb-6 drop-shadow-[0_0_30px_rgba(222,184,135,0.4)]" />
+                 <h3 className="font-serif text-3xl md:text-4xl text-rose-100 italic text-glow leading-tight mb-6">Сюрприз!</h3>
                  
                  <div className="glass-panel p-6 rounded-xl w-full border border-white/10 bg-white/5 mb-8">
-                   <p className="font-serif text-lg md:text-xl text-center leading-relaxed whitespace-pre-line text-rose-100">
+                   <p className="font-serif text-lg md:text-xl leading-relaxed whitespace-pre-line text-rose-100">
                      {day.rewardNote}
                    </p>
                  </div>
 
                  <button 
+                  type="button"
                   onClick={handleRewardClaimed}
-                  className="bg-rose-500 text-white font-serif italic px-8 py-4 rounded-full shadow-[0_10px_30px_rgba(244,63,94,0.4)] hover:bg-rose-600 active:scale-95 transition-all flex items-center gap-2"
+                  className="bg-rose-500 text-white font-serif italic px-8 py-4 rounded-full shadow-[0_10px_30px_rgba(244,63,94,0.4)] hover:bg-rose-600 active:scale-95 transition-all flex items-center gap-2 cursor-pointer z-50"
                  >
                    Я нашла! <CheckCircle className="w-5 h-5" />
                  </button>
-               </>
+               </div>
              )}
           </div>
         )}
@@ -387,11 +390,18 @@ export default function App() {
   }
 
   const handleCompleteDay = (dayNum: number) => {
-    setUser(prev => ({
-      ...prev,
-      completedDays: [...prev.completedDays, dayNum],
-      currentDay: dayNum + 1 
-    }));
+    setUser(prev => {
+      // Prevent duplicates in completedDays
+      if (prev.completedDays.includes(dayNum)) {
+        return prev;
+      }
+      return {
+        ...prev,
+        completedDays: [...prev.completedDays, dayNum],
+        // Only advance currentDay if we are completing the latest day
+        currentDay: Math.max(prev.currentDay, dayNum + 1)
+      };
+    });
     // Scroll to top automatically when a quest is completed
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
