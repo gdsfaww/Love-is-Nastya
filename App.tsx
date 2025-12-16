@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ALL_DAYS, QR_NOTES, START_DATE } from './constants';
 import { DayStatus, UserState, DayConfig, INITIAL_STATE } from './types';
 import { generateDailyLoveNote, getHintForQuest } from './services/geminiService';
-import { Lock, Star, Heart, Sparkles, X, ChevronRight, Gift, KeyRound, MapPin, Clock } from 'lucide-react';
+import { Lock, Star, Heart, Sparkles, X, ChevronRight, Gift, KeyRound, MapPin, Clock, CheckCircle } from 'lucide-react';
 
 /**
  * LoveRain Background Effect
@@ -53,7 +53,7 @@ const NoteViewer: React.FC<{ noteId: string }> = ({ noteId }) => {
 
   if (!note) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center p-6 text-center">
+      <div className="min-h-[100dvh] flex items-center justify-center p-6 text-center animate-in fade-in duration-700">
         <div className="glass-panel p-8 rounded-2xl w-full max-w-sm">
           <p className="text-rose-400 font-serif text-xl">Записка не найдена или унесена ветром...</p>
           <a href="/" className="mt-6 inline-block text-sm uppercase tracking-widest text-rose-100/60 border-b border-rose-100/20 pb-1">Вернуться домой</a>
@@ -63,7 +63,7 @@ const NoteViewer: React.FC<{ noteId: string }> = ({ noteId }) => {
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 relative overflow-hidden animate-in fade-in zoom-in-95 duration-1000">
       <LoveRain />
       <div className="relative z-10 w-full max-w-md bg-[#fff0f5] text-velvet-dark rounded-[3px] p-8 md:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.5)] transform rotate-1 border border-rose-900/10 flex flex-col max-h-[90dvh] overflow-y-auto scrollbar-hide">
         
@@ -112,7 +112,8 @@ const LoginScreen: React.FC<LoginProps> = ({ onLogin }) => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanPass = password.trim().toLowerCase();
-    if (cleanPass === 'anastasia' || cleanPass === 'анастасия') {
+    // Updated password check
+    if (cleanPass === 'люблю') {
       onLogin();
     } else {
       setError(true);
@@ -121,8 +122,8 @@ const LoginScreen: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="relative z-10 min-h-[100dvh] flex flex-col items-center justify-center p-4 md:p-6 text-center">
-      <div className="max-w-md w-full glass-panel p-8 md:p-12 rounded-[2rem] border-white/10 relative overflow-hidden group">
+    <div className="relative z-10 min-h-[100dvh] flex flex-col items-center justify-center p-4 md:p-6 text-center animate-in fade-in zoom-in-95 duration-1000">
+      <div className="max-w-md w-full glass-panel p-8 md:p-12 rounded-[2rem] border-white/10 relative overflow-hidden group transition-all duration-500 hover:shadow-[0_0_40px_rgba(251,113,133,0.2)]">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-rose-400/50 to-transparent" />
         
         <div className="mb-6 md:mb-8 flex justify-center relative">
@@ -146,7 +147,7 @@ const LoginScreen: React.FC<LoginProps> = ({ onLogin }) => {
           
           {error && (
             <p className="text-rose-400 text-xs md:text-sm font-serif italic animate-bounce">
-              Только моя любовь может войти...
+              Попробуй "ЛЮБЛЮ"...
             </p>
           )}
 
@@ -168,26 +169,46 @@ const LoginScreen: React.FC<LoginProps> = ({ onLogin }) => {
 const QuestModal: React.FC<{ day: DayConfig; isOpen: boolean; onClose: () => void; onComplete: () => void }> = ({ day, isOpen, onClose, onComplete }) => {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [viewState, setViewState] = useState<'input' | 'success' | 'reward'>('input');
   const [hint, setHint] = useState<string | null>(null);
   const [loadingHint, setLoadingHint] = useState(false);
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setViewState('input');
+      setCode('');
+      setError('');
+      setHint(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (code.trim().toUpperCase() === day.unlockCode.toUpperCase()) {
-      setSuccess(true);
+      setViewState('success');
+      
+      // Delay before showing the reward screen
       setTimeout(() => {
-        onComplete();
-        onClose();
-        setSuccess(false);
-        setCode('');
-      }, 3000);
+        if (day.rewardNote) {
+          setViewState('reward');
+        } else {
+          // If no reward note, complete immediately
+          onComplete();
+          onClose();
+        }
+      }, 2500);
     } else {
       setError("Не то слово...");
       setTimeout(() => setError(''), 3000);
     }
+  };
+
+  const handleRewardClaimed = () => {
+    onComplete();
+    onClose();
   };
 
   const fetchHint = async () => {
@@ -201,7 +222,7 @@ const QuestModal: React.FC<{ day: DayConfig; isOpen: boolean; onClose: () => voi
     <div className="fixed inset-0 z-50 flex items-center justify-center md:p-6 isolate">
       {/* Desktop Backdrop */}
       <div 
-        className="fixed inset-0 bg-velvet-dark/95 backdrop-blur-md transition-opacity duration-500 hidden md:block" 
+        className="fixed inset-0 bg-velvet-dark/95 backdrop-blur-md transition-opacity duration-500 hidden md:block animate-in fade-in duration-500" 
         onClick={onClose} 
       />
       
@@ -212,28 +233,49 @@ const QuestModal: React.FC<{ day: DayConfig; isOpen: boolean; onClose: () => voi
         md:rounded-[3px] shadow-2xl 
         flex flex-col 
         overflow-hidden
-        animate-in fade-in zoom-in-95 duration-300
+        animate-in fade-in zoom-in-95 duration-500 slide-in-from-bottom-8
       ">
         
         {/* Paper Texture */}
         <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] pointer-events-none md:rounded-[3px]" />
         
-        {/* Success Overlay with High Contrast */}
-        {success && (
-          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-velvet-dark text-rose-100 transition-all duration-500 animate-in fade-in">
+        {/* Success / Reward Overlay */}
+        {(viewState === 'success' || viewState === 'reward') && (
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-velvet-dark text-rose-100 transition-all duration-700 animate-in fade-in p-6">
              {/* Decorative background elements */}
              <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle,rgba(251,113,133,0.1)_0%,rgba(0,0,0,0)_70%)] animate-pulse-soft" />
              </div>
              
-             <Heart className="w-24 h-24 text-rose-500 fill-rose-500 animate-heartbeat mb-6 relative z-10 drop-shadow-[0_0_30px_rgba(244,63,94,0.6)]" />
-             <h3 className="font-serif text-5xl md:text-6xl text-rose-100 italic text-center relative z-10 text-glow leading-none mb-2">Любовь<br/>Принята</h3>
-             <div className="w-16 h-px bg-rose-500/50 my-6 relative z-10" />
-             <p className="text-gold-warm font-sans text-xs uppercase tracking-[0.3em] animate-pulse relative z-10">Открываю...</p>
+             {viewState === 'success' ? (
+               <>
+                 <Heart className="w-24 h-24 text-rose-500 fill-rose-500 animate-heartbeat mb-6 relative z-10 drop-shadow-[0_0_30px_rgba(244,63,94,0.6)]" />
+                 <h3 className="font-serif text-5xl md:text-6xl text-rose-100 italic text-center relative z-10 text-glow leading-none mb-2">Принято</h3>
+                 <div className="w-16 h-px bg-rose-500/50 my-6 relative z-10" />
+               </>
+             ) : (
+               <>
+                 <Gift className="w-20 h-20 text-gold-warm animate-bounce mb-6 relative z-10 drop-shadow-[0_0_30px_rgba(222,184,135,0.4)]" />
+                 <h3 className="font-serif text-3xl md:text-4xl text-rose-100 italic text-center relative z-10 text-glow leading-tight mb-6">Сюрприз!</h3>
+                 
+                 <div className="glass-panel p-6 rounded-xl w-full border border-white/10 bg-white/5 mb-8">
+                   <p className="font-serif text-lg md:text-xl text-center leading-relaxed whitespace-pre-line text-rose-100">
+                     {day.rewardNote}
+                   </p>
+                 </div>
+
+                 <button 
+                  onClick={handleRewardClaimed}
+                  className="bg-rose-500 text-white font-serif italic px-8 py-4 rounded-full shadow-[0_10px_30px_rgba(244,63,94,0.4)] hover:bg-rose-600 active:scale-95 transition-all flex items-center gap-2"
+                 >
+                   Я нашла! <CheckCircle className="w-5 h-5" />
+                 </button>
+               </>
+             )}
           </div>
         )}
 
-        {/* Scrollable Content */}
+        {/* Scrollable Content (Input View) */}
         <div className="flex-1 overflow-y-auto scrollbar-hide p-6 pt-12 md:p-12 relative z-10 flex flex-col">
           {/* Close Button */}
           <button 
@@ -350,6 +392,8 @@ export default function App() {
       completedDays: [...prev.completedDays, dayNum],
       currentDay: dayNum + 1 
     }));
+    // Scroll to top automatically when a quest is completed
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const getDayStatus = (day: DayConfig): DayStatus => {
@@ -383,7 +427,7 @@ export default function App() {
   }
 
   return (
-    <div className="relative min-h-[100dvh] pb-20 overflow-x-hidden">
+    <div className="relative min-h-[100dvh] pb-20 overflow-x-hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
       <LoveRain />
       
       {/* Header */}

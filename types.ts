@@ -13,6 +13,7 @@ export interface DayConfig {
   unlockCode: string; // The code required to finish this day
   clue?: string; // Hint for the user
   content: string; // The task description
+  rewardNote?: string; // Where the physical reward is hidden
 }
 
 export interface UserState {
