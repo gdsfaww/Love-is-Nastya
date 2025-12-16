@@ -147,7 +147,7 @@ const LoginScreen: React.FC<LoginProps> = ({ onLogin }) => {
           
           {error && (
             <p className="text-rose-400 text-xs md:text-sm font-serif italic animate-bounce">
-              Попробуй "ЛЮБЛЮ"...
+              Это главное слово в нашей истории...
             </p>
           )}
 
@@ -201,7 +201,7 @@ const QuestModal: React.FC<{ day: DayConfig; isOpen: boolean; onClose: () => voi
         }
       }, 2500);
     } else {
-      setError("Не то слово...");
+      setError("Пока не подходит... Слушай сердце ❤️");
       setTimeout(() => setError(''), 3000);
     }
   };
