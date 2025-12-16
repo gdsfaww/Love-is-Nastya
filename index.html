@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Антон и Анастасия | Зимняя Сказка</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=Montserrat:wght@200;300;400&subset=cyrillic&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Montserrat', 'sans-serif'],
+              serif: ['Cormorant Garamond', 'serif'],
+            },
+            colors: {
+              'velvet-dark': '#2a0a10', // Deep warm burgundy
+              'velvet-light': '#4a121d',
+              'rose-100': '#ffe4e6',
+              'rose-400': '#fb7185',
+              'gold-warm': '#deb887', // Softer gold
+            },
+            animation: {
+              'float': 'float 8s ease-in-out infinite',
+              'float-delayed': 'float 8s ease-in-out 4s infinite',
+              'pulse-soft': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'heartbeat': 'heartbeat 1.5s ease-in-out infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-15px)' },
+              },
+              heartbeat: {
+                '0%, 100%': { transform: 'scale(1)' },
+                '50%': { transform: 'scale(1.05)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #2a0a10;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #fb7185;
+        border-radius: 10px;
+      }
+      .glass-panel {
+        background: rgba(255, 240, 245, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      }
+      .text-glow {
+        text-shadow: 0 0 10px rgba(251, 113, 133, 0.3);
+      }
+      
+      /* Hide scrollbar utilities */
+      .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+      }
+      .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+  }
+}
+</script>
+</head>
+  <body class="bg-gradient-to-b from-velvet-dark via-[#1a0508] to-black text-rose-100 antialiased selection:bg-rose-400/30 selection:text-white min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
